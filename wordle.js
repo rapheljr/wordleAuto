@@ -32,7 +32,7 @@ const generateTag = (tag, content, property) => {
 };
 
 const writeToJson = (file, content) =>
-  fs.writeFileSync(file, JSON.stringify(content), 'utf8');
+  writeToFile(file, JSON.stringify(content));
 
 const writeToFile = (file, content) =>
   fs.writeFileSync(file, content, 'utf8');
@@ -66,7 +66,13 @@ const wordleTable = function (prevAttempts) {
   return generatedWords.concat(generatedEmptyRows).join('');
 };
 
-const readFile = filePath => fs.readFileSync(filePath, 'utf8');
+const readFile = function (filePath) {
+  try {
+    return fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    throw filePath + 'not found';
+  }
+};
 
 const generatePage = function (table, message, templateAsString) {
   const template = templateAsString.replace(/_GUESSED-WORDS_/, table);
@@ -88,3 +94,4 @@ const main = function (guess, dataFile, template) {
 };
 
 exports.main = main;
+exports.readFile = readFile;
