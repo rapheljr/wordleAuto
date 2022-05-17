@@ -1,82 +1,50 @@
-/* eslint-disable max-statements */
-/* eslint-disable no-magic-numbers */
-
-const { log } = console;
 const fs = require('fs');
+const { log } = console;
 const { words } = require('./words.js');
 const { main } = require('./wordle.js');
 
 const dataFile = './resources/data.json';
 const template = './resources/template.html';
 
-const randomNumber = function (range) {
-  const random = Math.random() * range;
-  return Math.floor(random);
-};
+const randomNumber = range => Math.floor(Math.random() * range);
 
-const getWord = function (words) {
-  return words[randomNumber(words.length)];
-};
+const getWord = words => words[randomNumber(words.length)];
 
-const wordle = function (actual, guess) {
-  const exact = [];
-  const included = [];
-  const notIncluded = [];
-  if (actual.length !== guess.length) {
-    return [exact, included, notIncluded];
-  }
-  guess.split('').reduce(function (context, element, index) {
-    if (element === actual[index]) {
-      exact.push([index, element]);
-    } else if (actual.includes(element)) {
-      included.push([index, element]);
-    } else {
-      notIncluded.push(element);
-    }
-    return context;
-  }, 0);
-  return [exact, included, notIncluded];
-};
-
-const filter = function (words, data, reducer) {
+const filter = function (words, regEx) {
   return words.filter(function (word) {
-    return data.reduce(reducer(word), true);
+    return regEx.test(word);
   });
 };
 
-const findWords = function (word) {
-  return function (context, element) {
-    const result = word[element[0]] === element[1];
-    return context ? context === result : false;
-  };
+const wordle = function (actual, guess) {
+  let regEx = '/';
+  let notIncluded = '';
+  guess.split('').forEach(function (element, index) {
+    if (element === actual[index]) {
+      regEx += element;
+    } else if (actual.includes(element)) {
+      regEx += '[^' + element + ']';
+    } else {
+      regEx += '.';
+      notIncluded += element;
+    }
+    return element;
+  });
+  regEx = regEx.replaceAll('^', '^' + notIncluded);
+  regEx = regEx.replaceAll('.', '[^' + notIncluded + ']');
+  return regEx + '/';
 };
 
-const excludeWords = function (word) {
-  return function (context, element) {
-    const result = !word.includes(element);
-    return context ? context === result : false;
-  };
-};
-
-const ignoreWords = function (word) {
-  return function (context, element) {
-    let result = word[element[0]] !== element[1];
-    result = word.includes(element[1]) && result;
-    return context ? context === result : false;
-  };
-};
-
-const wordAuto = function (actual, guess, words) {
+const wordleAuto = function (actual, guess, words) {
   log(actual, guess);
   main(guess, dataFile, template);
   if (actual === guess) {
     return actual;
   }
-  const [exact, included, notIncluded] = wordle(actual, guess);
-  let filtered = filter(words, notIncluded, excludeWords);
-  filtered = filter(filtered, included, ignoreWords);
-  filtered = filter(filtered, exact, findWords);
-  return wordAuto(actual, getWord(filtered), filtered);
+  const regEx = wordle(actual, guess);
+  const filtered = filter(words, eval(regEx));
+  // log(filtered);
+  return wordleAuto(actual, getWord(filtered), filtered);
 };
 
 const readFile = filePath => fs.readFileSync(filePath, 'utf8');
@@ -84,4 +52,4 @@ const readFile = filePath => fs.readFileSync(filePath, 'utf8');
 let data = readFile(dataFile);
 data = JSON.parse(data);
 
-log(wordAuto(data.word, getWord(words), words));
+log(wordleAuto(data.word, getWord(words), words));

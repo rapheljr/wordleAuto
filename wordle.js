@@ -1,6 +1,5 @@
 /* eslint-disable no-magic-numbers */
-/* eslint-disable max-statements */
-/* eslint-disable max-len */
+
 const fs = require('fs');
 
 require('./resources/setUp.js');
@@ -70,19 +69,8 @@ const wordleTable = function (prevAttempts) {
 const readFile = filePath => fs.readFileSync(filePath, 'utf8');
 
 const generatePage = function (table, message, templateAsString) {
-  return templateAsString.replace(/_GUESSED-WORDS_/, table).replace(/_MESSAGE_/, message);
-};
-
-const getMessage = function (data, guess) {
-  if (data.word === guess) {
-    data.isGameOver = true;
-    return 'CONGRATULATIONS!!! You got it right';
-  }
-  if (data.guessedWords.length === 6) {
-    data.isGameOver = true;
-    return 'OOPS!!! Better luck next time. Correct word was ' + data.word;
-  }
-  return '';
+  const template = templateAsString.replace(/_GUESSED-WORDS_/, table);
+  return template.replace(/_MESSAGE_/, message);
 };
 
 const main = function (guess, dataFile, template) {
@@ -93,9 +81,9 @@ const main = function (guess, dataFile, template) {
   const wordResult = lettersStatus(data.word, guess);
   prevAttempts = appendGuessedWord(prevAttempts, wordResult);
 
-  const message = getMessage(data, guess);
   writeToJson(dataFile, data);
-  const webpage = generatePage(wordleTable(prevAttempts), message, templateAsString);
+  const table = wordleTable(prevAttempts);
+  const webpage = generatePage(table, '', templateAsString);
   writeToFile('./index.html', webpage);
 };
 
