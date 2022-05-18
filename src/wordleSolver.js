@@ -1,9 +1,10 @@
 /* eslint-disable no-eval */
 const { words } = require('./words.js');
-const { main, readFile } = require('./wordle.js');
+const { main: mainWordle, readFile } = require('./wordle.js');
+// const { main, readFile } = require('./wordle.js');
 
-const dataFile = './resources/data.json';
-const template = './resources/template.html';
+const dataFile = 'resources/data.json';
+const template = 'resources/template.html';
 
 const randomNumber = range => Math.floor(Math.random() * range);
 
@@ -45,8 +46,8 @@ const wordle = function (actual, guess) {
 };
 
 const wordleSolver = function (actual, guess, words) {
-  console.log(actual, guess);
-  main(guess, dataFile, template);
+  // console.log(actual, guess);
+  mainWordle(guess, dataFile, template);
   if (actual === guess) {
     return actual;
   }
@@ -55,7 +56,11 @@ const wordleSolver = function (actual, guess, words) {
   return wordleSolver(actual, getWord(filtered), filtered);
 };
 
-let data = readFile(dataFile);
-data = JSON.parse(data);
+const main = function () {
+  let data = readFile(dataFile);
+  data = JSON.parse(data);
+  return wordleSolver(data.word, getWord(words), words);
+};
 
-console.log(wordleSolver(data.word, getWord(words), words));
+exports.wordleSolver = wordleSolver;
+exports.main = main;

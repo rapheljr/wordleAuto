@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 
-require('./resources/setUp.js');
+require('./setUp.js');
 
 const lettersStatus = function (word, guess) {
   const result = [];
