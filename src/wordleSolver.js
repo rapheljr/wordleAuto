@@ -58,7 +58,7 @@ const wordleSolver = function (actual, guess, words) {
 const main = function () {
   let data = readFile(dataFile);
   data = JSON.parse(data);
-  return wordleSolver(data.word, getWord(words), words);
+  return wordleSolver(data.word, 'audio', words);
 };
 
 exports.wordleSolver = wordleSolver;
