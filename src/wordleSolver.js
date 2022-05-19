@@ -1,7 +1,6 @@
 /* eslint-disable no-eval */
 const { words } = require('./words.js');
 const { main: mainWordle, readFile } = require('./wordle.js');
-// const { main, readFile } = require('./wordle.js');
 
 const dataFile = 'resources/data.json';
 const template = 'resources/template.html';
@@ -63,4 +62,5 @@ const main = function () {
 };
 
 exports.wordleSolver = wordleSolver;
+exports.wordle = wordle;
 exports.main = main;
